@@ -1,0 +1,10 @@
+[Unit]
+Description=Örnek ağ geçidi sensör okuma servisi
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sensor-oku 3
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+# short-description: Örnek ağ geçidi disk düzeni (önyükleme + kök + veri)
+# long-description: BIOS ile açılan üç bölümlü disk imajı. Kalıcı veriler,
+# kök dosya sisteminden ayrı tutulan /data bölümünde saklanır (Bölüm 9).
+# Yocto 6.0 ile .wks dosyaları katmanın files/wic/ dizininde aranır.
+
+part /boot --source bootimg_pcbios --ondisk sda --label boot --active --align 1024
+part /     --source rootfs --ondisk sda --fstype=ext4 --label kok --align 1024 --use-uuid
+part /data --ondisk sda --fstype=ext4 --label veri --size 64 --align 1024
+
+bootloader --timeout=0 --append="rootwait rootfstype=ext4 console=tty0 console=ttyS0,115200"

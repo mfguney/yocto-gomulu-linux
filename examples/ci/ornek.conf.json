@@ -1,0 +1,72 @@
+{
+    "description": "ÖrnekOS endüstriyel sensör ağ geçidi (meta-ornek), Yocto Project 6.0 'wrynose'",
+    "expires": "2030-05-31",
+    "sources": {
+        "bitbake": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/bitbake",
+                "branch": "2.18",
+                "rev": "2.18"
+            }
+        },
+        "openembedded-core": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/openembedded-core",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-yocto": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-yocto",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        }
+    },
+    "bitbake-setup": {
+        "configurations": [
+        {
+            "bb-layers": ["openembedded-core/meta", "meta-yocto/meta-poky"],
+            "bb-layers-file-relative": ["../meta-ornek"],
+            "oe-fragments": ["distro/ornekos"],
+            "oe-fragments-one-of": {
+                "machine": {
+                    "description": "Hedef makine",
+                    "options": [
+                        { "name": "machine/qemux86-64", "description": "x86-64 sistem, QEMU" },
+                        { "name": "machine/qemuarm64", "description": "ARMv8 sistem, QEMU" }
+                    ]
+                }
+            },
+            "configurations": [
+            {
+                "name": "ornek",
+                "description": "Ürün yapılandırması (salt okunur rootfs, lisans metinleri)",
+                "setup-dir-name": "ornek-$machine",
+                "oe-fragments": ["ornek/urun", "ornek/sbom"]
+            },
+            {
+                "name": "ornek-gelistirici",
+                "description": "Geliştirici yapılandırması (SSH, hata ayıklama araçları, parolasız root)",
+                "setup-dir-name": "ornek-gelistirici-$machine",
+                "oe-fragments": ["ornek/gelistirici", "core/yocto/root-login-with-empty-password"]
+            },
+            {
+                "name": "ornek-ci",
+                "description": "CI yapılandırması (testimage, buildhistory, SBOM ve CVE taraması)",
+                "setup-dir-name": "ornek-ci-$machine",
+                "oe-fragments": [
+                    "ornek/gelistirici",
+                    "core/yocto/root-login-with-empty-password",
+                    "ornek/ci",
+                    "ornek/sbom",
+                    "core/yocto/sbom-cve-check"
+                ]
+            }
+            ]
+        }
+        ]
+    },
+    "version": "1.0"
+}

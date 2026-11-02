@@ -1,0 +1,143 @@
+# Yocto Project ile Gömülü Linux — açık kaynak Türkçe Yocto Project kitabı
+# Bu dosya hem Material for MkDocs hem de onun halefi Zensical ile çalışacak
+# şekilde sade tutuldu (Zensical mkdocs.yml dosyasını doğrudan okuyabiliyor).
+
+site_name: Yocto Project ile Gömülü Linux
+site_description: >-
+  Yocto Project ve OpenEmbedded'i kavramsal olarak ve uygulamalı örneklerle
+  anlatan açık kaynak Türkçe kitap. Yocto 6.0 "Wrynose" LTS esas alınmıştır.
+site_author: Yocto Project ile Gömülü Linux katkıcıları
+# GitHub'a yükledikten sonra kendi adresinizle değiştirin:
+site_url: https://mfguney.github.io/yocto-gomulu-linux/
+# Çevrimiçi ve çevrimdışı kullanımda bağlantıların aynı kalması için .html uzantılı adresler kullanılır
+use_directory_urls: false
+repo_url: https://github.com/mfguney/yocto-gomulu-linux
+repo_name: yocto-gomulu-linux
+edit_uri: edit/main/docs/
+copyright: >-
+  Metin <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.tr">CC BY-SA 4.0</a>,
+  örnek kodlar MIT lisanslıdır. Yocto Project, Linux Foundation'ın tescilli markasıdır;
+  bu kitap resmi bir Yocto Project yayını değildir.
+
+theme:
+  name: material
+  language: tr
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Karanlık temaya geç
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Aydınlık temaya geç
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+    - content.tooltips
+    - toc.follow
+
+extra_css:
+  - stylesheets/kitap.css
+
+extra_javascript:
+  - javascripts/quiz.js
+  - javascripts/bitbake-sim.js
+  - javascripts/gorev-zinciri.js
+  - javascripts/akis.js
+
+plugins:
+  - search:
+      lang: tr
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Bu başlığa bağlantı
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.snippets:
+      auto_append:
+        - includes/kisaltmalar.md
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Başlangıç:
+      - index.md
+      - Kitabın kullanımı: nasil-okunur.md
+  - "Kısım I · Temeller":
+      - "1 · Gömülü Linux ve Yocto": bolumler/01-neden-yocto.md
+      - "2 · Ekosistem ve kavramlar": bolumler/02-ekosistem.md
+      - "3 · İlk derleme": bolumler/03-ilk-derleme.md
+      - "4 · Build dizininin yapısı": bolumler/04-build-dizini.md
+  - "Kısım II · BitBake ve metadata":
+      - "5 · BitBake dili": bolumler/05-bitbake-dili.md
+      - "6 · Tarifler ve görevler": bolumler/06-tarifler.md
+      - "7 · Katmanlar ve bbappend": bolumler/07-katmanlar.md
+      - "8 · Sınıflar, include, require": bolumler/08-siniflar.md
+  - "Kısım III · Dağıtım tasarımı":
+      - "9 · İmajlar": bolumler/09-imajlar.md
+      - "10 · Makine ve BSP": bolumler/10-makine-bsp.md
+      - "11 · Dağıtım yapılandırması": bolumler/11-distro.md
+      - "12 · Linux çekirdeği": bolumler/12-cekirdek.md
+  - "Kısım IV · Geliştirme süreçleri":
+      - "13 · devtool ve SDK": bolumler/13-devtool-sdk.md
+      - "14 · Hata ayıklama": bolumler/14-hata-ayiklama.md
+      - "15 · Derleme performansı": bolumler/15-sstate.md
+  - "Kısım V · Ürünleştirme":
+      - "16 · Lisans uyumu, SPDX ve CVE": bolumler/16-lisans-sbom.md
+      - "17 · Güvenlik ve sahada güncelleme": bolumler/17-guvenlik-guncelleme.md
+      - "18 · Sürekli entegrasyon": bolumler/18-ci.md
+  - Etkileşimli araçlar:
+      - BitBake operatör simülatörü: oyun-alani/bitbake-operatorleri.md
+      - Animasyonlu şemalar: oyun-alani/animasyonlar.md
+  - Ekler:
+      - Terimler sözlüğü: ekler/sozluk.md
+      - Komut özeti: ekler/kopya-kagidi.md
+      - Sürüm takvimi: ekler/surumler.md
+      - Kaynakça ve ileri okuma: ekler/kaynakca.md
+      - Katkı rehberi: ekler/katki.md

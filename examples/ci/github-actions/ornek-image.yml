@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: MIT
+#
+# ÖrnekOS imajının kurum içi (self-hosted) GitHub Actions çalıştırıcısında derlenmesi,
+# QEMU'da test edilmesi ve SBOM/CVE raporlarının arşivlenmesi (Bölüm 18).
+#
+# Kullanım: bu dosya projenin .github/workflows/ dizinine kopyalanır.
+#
+# Çalıştırıcı önkoşulları:
+#   - Yocto 6.0 için desteklenen bir dağıtım ve Bölüm 3'teki ana makine paketleri
+#   - testimage için: ip, ping, ssh, scp komutları; KVM için /dev/kvm erişimi
+#   - Kalıcı ve yeterli disk alanı (YOCTO_TOP): indirmeler ve sstate çalıştırmalar
+#     arasında burada korunur
+#   - Çalıştırıcı root olmayan bir kullanıcıyla çalışmalıdır (BitBake root ile çalışmaz)
+
+name: ornek-image
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Aynı dal için yeni bir çalıştırma başlarsa eskisi iptal edilir
+concurrency:
+  group: ornek-image-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  YOCTO_TOP: /srv/yocto-ci                       # kalıcı üst dizin (site.conf, sstate, indirmeler)
+  SETUP_NAME: ornek-ci-${{ github.run_id }}      # her çalıştırma için ayrı kurulum
+  MACHINE: qemux86-64
+
+jobs:
+  derleme:
+    runs-on: [self-hosted, linux, yocto]
+    timeout-minutes: 720
+    steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+
+      - name: bitbake-setup kur
+        run: |
+          python3 -m venv --clear "$RUNNER_TEMP/bbsetup"
+          "$RUNNER_TEMP/bbsetup/bin/pip" install bitbake-setup
+
+      - name: Kurulumu oluştur
+        run: |
+          "$RUNNER_TEMP/bbsetup/bin/bitbake-setup" \
+            --setting default top-dir-prefix "$(dirname "$YOCTO_TOP")" \
+            --setting default top-dir-name "$(basename "$YOCTO_TOP")" \
+            init --non-interactive --no-init-vscode \
+            --setup-dir-name "$SETUP_NAME" \
+            "$GITHUB_WORKSPACE/examples/ci/ornek.conf.json" \
+            ornek-ci "machine/$MACHINE"
+
+      - name: İmajı derle
+        run: |
+          . "$YOCTO_TOP/$SETUP_NAME/build/init-build-env"
+          bitbake ornek-image
+
+      - name: QEMU'da test et (testimage)
+        run: |
+          . "$YOCTO_TOP/$SETUP_NAME/build/init-build-env"
+          bitbake -c testimage ornek-image
+
+      - name: SBOM, CVE ve lisans çıktılarını arşivle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ornek-image-${{ github.sha }}
+          retention-days: 90
+          if-no-files-found: warn
+          path: |
+            ${{ env.YOCTO_TOP }}/${{ env.SETUP_NAME }}/build/tmp/deploy/images/${{ env.MACHINE }}/ornek-image-${{ env.MACHINE }}.rootfs.spdx.json
+            ${{ env.YOCTO_TOP }}/${{ env.SETUP_NAME }}/build/tmp/deploy/images/${{ env.MACHINE }}/ornek-image-${{ env.MACHINE }}.rootfs.sbom-cve-check.*
+            ${{ env.YOCTO_TOP }}/${{ env.SETUP_NAME }}/build/tmp/deploy/images/${{ env.MACHINE }}/ornek-image-${{ env.MACHINE }}.rootfs.cve.txt
+            ${{ env.YOCTO_TOP }}/${{ env.SETUP_NAME }}/build/tmp/deploy/licenses/qemux86_64/ornek-image-${{ env.MACHINE }}.rootfs/
+            ${{ env.YOCTO_TOP }}/${{ env.SETUP_NAME }}/build/tmp/log/oeqa/
+            ${{ env.YOCTO_TOP }}/${{ env.SETUP_NAME }}/layers/sources-fixed-revisions.json
+
+      - name: Kurulum dizinini temizle
+        if: always()
+        run: rm -rf "$YOCTO_TOP/$SETUP_NAME"

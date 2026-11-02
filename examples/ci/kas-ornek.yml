@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: MIT
+#
+# kas ile ÖrnekOS kurulumu (Bölüm 18). bitbake-setup şablonu ornek.conf.json'a alternatiftir.
+#
+#   kas build examples/ci/kas-ornek.yml
+#   kas shell examples/ci/kas-ornek.yml
+#
+# Biçim sürümü 19, kas 4.8 ve sonraki sürümlerce desteklenir. "commit" değerleri yazıldığı
+# tarihteki wrynose dal uçlarıdır; güncelleme bilinçli bir değişiklik olarak yapılmalıdır.
+
+header:
+  version: 19
+
+machine: qemux86-64
+distro: ornekos
+target: ornek-image
+
+repos:
+  # url ve path verilmediğinde: bu dosyanın bulunduğu depo (kitap deposu)
+  yocto-gomulu-linux:
+    layers:
+      examples/meta-ornek:
+
+  bitbake:
+    url: https://git.openembedded.org/bitbake
+    branch: "2.18"
+    commit: 6e260eb6ab1631607ea414d9ff8ede1155faa5d9
+    layers:
+      .: disabled
+
+  openembedded-core:
+    url: https://git.openembedded.org/openembedded-core
+    branch: wrynose
+    commit: ae5a301091f5b0574ea7444aab40b309b6d9f3f2
+    layers:
+      meta:
+
+  meta-yocto:
+    url: https://git.yoctoproject.org/meta-yocto
+    branch: wrynose
+    commit: 79b6d87030178bed0088ad3b00aa6dfbabac37c4
+    layers:
+      meta-poky:
+
+local_conf_header:
+  parcalar: |
+    OE_FRAGMENTS += "ornek/urun ornek/sbom core/yocto/sbom-cve-check"
